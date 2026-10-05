@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import pool from './db.js';
 
 const app = express();
 const port = 3001;
@@ -14,8 +15,13 @@ app.get('/api/hello', (req, res) => {
   });
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', database: err.message });
+  }
 });
 
 app.listen(port, () => {
