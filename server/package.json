@@ -7,7 +7,10 @@
     "dev": "node --env-file=.env --watch server.js",
     "start": "node --env-file=.env server.js",
     "db:setup": "node --env-file=.env db/setup.js",
-    "create-admin": "node --env-file=.env db/create-admin.js"
+    "create-admin": "node --env-file=.env db/create-admin.js",
+    "pretest": "node --env-file=.env.test test/create-test-db.js",
+    "test": "node --env-file=.env.test --test --test-concurrency=1 \"test/**/*.test.js\"",
+    "test:watch": "node --env-file=.env.test --test --test-concurrency=1 --watch \"test/**/*.test.js\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -15,5 +18,8 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
   }
 }

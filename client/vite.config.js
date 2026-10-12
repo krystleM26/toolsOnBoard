@@ -13,4 +13,9 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    // jsdom is a fake browser that runs inside Node, so components can render in tests.
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
 })
