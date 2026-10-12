@@ -18,3 +18,15 @@ export async function recordAudit(db, { organizationId, actorId, action, entityT
     [organizationId, actorId ?? null, action, entityType, entityId ?? null, changes ?? null],
   );
 }
+
+// Compares two versions of a record and returns only the fields that changed,
+// as { field: { from, to } }. Returns null if nothing changed.
+export function diff(before, after, fields) {
+  const changes = {};
+  for (const field of fields) {
+    const from = before[field] ?? null;
+    const to = after[field] ?? null;
+    if (from !== to) changes[field] = { from, to };
+  }
+  return Object.keys(changes).length ? changes : null;
+}

@@ -312,16 +312,11 @@ describe('staff dashboard API', () => {
       assert.equal(res.body.error, 'Someone already uses that email address');
     });
 
-    it('lets managers add people, but not admins', async () => {
-      const agent = await loggedInAgent(manager);
-      await agent.post('/api/staff').send({ fullName: 'Hired By Manager' }).expect(201);
-      const res = await agent.post('/api/staff').send({ fullName: 'Wannabe Admin', role: 'admin' }).expect(403);
-      assert.equal(res.body.error, 'Only admins can add other admins');
-    });
-
-    it("doesn't let supervisors add people", async () => {
-      const agent = await loggedInAgent(supervisor);
-      await agent.post('/api/staff').send({ fullName: 'Nope' }).expect(403);
-    });
+    for (const role of ['manager', 'supervisor']) {
+      it(`doesn't let ${role}s add people`, async () => {
+        const agent = await loggedInAgent({ manager, supervisor }[role]);
+        await agent.post('/api/staff').send({ fullName: 'Nope' }).expect(403);
+      });
+    }
   });
 });

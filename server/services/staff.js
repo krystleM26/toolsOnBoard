@@ -1,8 +1,8 @@
 import pool from '../db.js';
 import { recordAudit } from './audit.js';
+import { cleanDetails, friendlyDbError } from './validation.js';
 
 export const PAGE_SIZE = 25;
-export const ROLES = ['admin', 'manager', 'supervisor', 'employee'];
 
 // Builds the query behind every dashboard view: one row per person the viewer
 // is allowed to see, with their checklist progress and document status.
@@ -131,34 +131,16 @@ export async function listStaff(viewer, { status, search, page = 1 }) {
   };
 }
 
-export class ValidationError extends Error {
-  constructor(message, status = 400) {
-    super(message);
-    this.status = status;
-  }
-}
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
 // Adds a person to the creator's organization and records it in the history.
 export async function createStaffMember(creator, input) {
-  const fullName = input.fullName?.trim();
-  const email = input.email?.trim().toLowerCase() || null;
-  const phone = input.phone?.trim() || null;
-  const startDate = input.startDate || null;
-  const role = input.role || 'employee';
+  const { full_name, email = null, phone = null, start_date = null, role } = cleanDetails({
+    fullName: input.fullName,
+    email: input.email,
+    phone: input.phone,
+    startDate: input.startDate,
+    role: input.role || 'employee',
+  });
   const status = input.alreadyWorking ? 'active' : 'onboarding';
-
-  if (!fullName) throw new ValidationError('Full name is required');
-  if (email && !EMAIL_PATTERN.test(email)) throw new ValidationError('That email address doesn’t look right');
-  if (startDate && (!DATE_PATTERN.test(startDate) || Number.isNaN(Date.parse(startDate)))) {
-    throw new ValidationError('Start date must be a valid date');
-  }
-  if (!ROLES.includes(role)) throw new ValidationError('Unknown role');
-  if (role === 'admin' && creator.role !== 'admin') {
-    throw new ValidationError('Only admins can add other admins', 403);
-  }
 
   const client = await pool.connect();
   try {
@@ -167,7 +149,7 @@ export async function createStaffMember(creator, input) {
       `INSERT INTO users (organization_id, full_name, email, phone, start_date, role, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, full_name, email, phone, start_date, role, status`,
-      [creator.organizationId, fullName, email, phone, startDate, role, status],
+      [creator.organizationId, full_name, email, phone, start_date, role, status],
     );
     const person = rows[0];
 
@@ -178,7 +160,7 @@ export async function createStaffMember(creator, input) {
       entityType: 'user',
       entityId: person.id,
       changes: Object.fromEntries(
-        Object.entries({ full_name: fullName, email, phone, start_date: startDate, role, status })
+        Object.entries({ full_name, email, phone, start_date, role, status })
           .filter(([, value]) => value !== null)
           .map(([field, value]) => [field, { from: null, to: value }]),
       ),
@@ -188,9 +170,7 @@ export async function createStaffMember(creator, input) {
     return person;
   } catch (err) {
     await client.query('ROLLBACK');
-    // 23505 = unique_violation: the email is already used.
-    if (err.code === '23505') throw new ValidationError('Someone already uses that email address', 409);
-    throw err;
+    throw friendlyDbError(err);
   } finally {
     client.release();
   }

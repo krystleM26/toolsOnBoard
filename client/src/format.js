@@ -45,3 +45,25 @@ export function documentStatus(person) {
   }
   return { tone: 'ok', text: 'All current', extra: null }
 }
+
+export const STATUS_LABELS = {
+  onboarding: 'Onboarding',
+  active: 'Active',
+  archived: 'Archived',
+}
+
+// Turns a timestamp into 'Oct 12, 2026, 3:04 PM' in the viewer's time zone.
+export function formatDateTime(timestamp) {
+  return new Date(timestamp).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+// The day part of a timestamp ('Oct 12, 2026'), in the viewer's time zone.
+export function formatDay(timestamp) {
+  return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}

@@ -1,3 +1,4 @@
+import { Link, useLocation } from 'react-router'
 import { documentStatus, formatDate, ROLE_LABELS } from '../format.js'
 
 const TONE_ICONS = { bad: '✕', warn: '⚠', ok: '✓' }
@@ -33,6 +34,10 @@ function DocumentCell({ person }) {
 }
 
 function StaffTable({ staff }) {
+  // Remember this exact view (tab, search, page) so "Back" returns to it.
+  const location = useLocation()
+  const backTo = location.pathname + location.search
+
   if (staff.length === 0) {
     return <p className="empty">No one to show here.</p>
   }
@@ -53,7 +58,9 @@ function StaffTable({ staff }) {
           {staff.map((person) => (
             <tr key={person.id}>
               <td>
-                <div className="person-name">{person.full_name}</div>
+                <Link className="person-name" to={`/staff/${person.id}`} state={{ backTo }}>
+                  {person.full_name}
+                </Link>
                 {person.email && <div className="person-email">{person.email}</div>}
               </td>
               <td>{ROLE_LABELS[person.role]}</td>

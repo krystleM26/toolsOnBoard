@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { mockFetch } from '../test/mockFetch.js'
 import Dashboard from './Dashboard.jsx'
@@ -76,10 +77,18 @@ function fakeServer(people = [nia, cara, gus], { total, routes = {} } = {}) {
   })
 }
 
+function renderDashboard(user, path = '/') {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Dashboard user={user} />
+    </MemoryRouter>,
+  )
+}
+
 describe('Dashboard', () => {
   it('opens on the onboarding tab with its needs-attention summary', async () => {
     fakeServer()
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
 
     expect(await screen.findByText('Nia Newhire')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /Onboarding/ })).toHaveAttribute('aria-selected', 'true')
@@ -91,7 +100,7 @@ describe('Dashboard', () => {
 
   it('shows tab counts', async () => {
     fakeServer()
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
 
     expect(await screen.findByRole('tab', { name: 'Onboarding 1' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Active staff 2' })).toBeInTheDocument()
@@ -99,7 +108,7 @@ describe('Dashboard', () => {
 
   it('switches to active staff and shows document problems', async () => {
     fakeServer()
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
     await screen.findByText('Nia Newhire')
 
     await userEvent.click(screen.getByRole('tab', { name: /Active staff/ }))
@@ -113,7 +122,7 @@ describe('Dashboard', () => {
 
   it('searches as you type', async () => {
     const fetch = fakeServer()
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
     await userEvent.click(await screen.findByRole('tab', { name: /Active staff/ }))
     await screen.findByText('Gus Good')
 
@@ -126,13 +135,13 @@ describe('Dashboard', () => {
 
   it('says when no one matches', async () => {
     fakeServer([])
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
     expect(await screen.findByText('No one to show here.')).toBeInTheDocument()
   })
 
   it('pages through long lists', async () => {
     const fetch = fakeServer([nia], { total: 60 })
-    render(<Dashboard user={admin} onLogout={() => {}} />)
+    renderDashboard(admin)
 
     expect(await screen.findByText('Page 1 of 3 · 60 people')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '← Previous' })).toBeDisabled()
@@ -156,7 +165,7 @@ describe('Dashboard', () => {
         },
       })
 
-      render(<Dashboard user={admin} onLogout={() => {}} />)
+      renderDashboard(admin)
       await userEvent.click(await screen.findByRole('button', { name: '+ Add person' }))
       await userEvent.type(screen.getByLabelText('Full name'), 'Pat New')
       await userEvent.type(screen.getByLabelText(/Email/), 'pat@example.com')
@@ -183,7 +192,7 @@ describe('Dashboard', () => {
           'POST /api/staff': { status: 409, body: { error: 'Someone already uses that email address' } },
         },
       })
-      render(<Dashboard user={admin} onLogout={() => {}} />)
+      renderDashboard(admin)
 
       await userEvent.click(await screen.findByRole('button', { name: '+ Add person' }))
       await userEvent.type(screen.getByLabelText('Full name'), 'Dupe')
@@ -193,24 +202,39 @@ describe('Dashboard', () => {
       expect(screen.getByLabelText('Full name')).toHaveValue('Dupe')
     })
 
-    it('offers admins every role, but not managers', async () => {
+    it('is only offered to admins', async () => {
       fakeServer()
-      const { unmount } = render(<Dashboard user={admin} onLogout={() => {}} />)
-      await userEvent.click(await screen.findByRole('button', { name: '+ Add person' }))
-      expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument()
+      const { unmount } = renderDashboard(manager)
+      await screen.findByText('Nia Newhire')
+      expect(screen.queryByRole('button', { name: '+ Add person' })).not.toBeInTheDocument()
       unmount()
 
       fakeServer()
-      render(<Dashboard user={manager} onLogout={() => {}} />)
+      renderDashboard(admin)
       await userEvent.click(await screen.findByRole('button', { name: '+ Add person' }))
-      expect(screen.queryByRole('option', { name: 'Admin' })).not.toBeInTheDocument()
-      expect(screen.getByRole('option', { name: 'Manager' })).toBeInTheDocument()
+      expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument()
     })
+  })
+
+  it('links each name to that person’s page', async () => {
+    fakeServer()
+    renderDashboard(admin)
+    expect(await screen.findByRole('link', { name: 'Nia Newhire' })).toHaveAttribute('href', '/staff/10')
+  })
+
+  it('opens on the tab, search and page in the address', async () => {
+    const fetch = fakeServer()
+    renderDashboard(admin, '/?tab=active&q=gus')
+
+    expect(await screen.findByText('Gus Good')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /Active staff/ })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('searchbox')).toHaveValue('gus')
+    expect(fetch.mock.calls.some(([url]) => url.includes('status=active') && url.includes('search=gus'))).toBe(true)
   })
 
   it('shows supervisors their team, without the add button', async () => {
     fakeServer()
-    render(<Dashboard user={supervisor} onLogout={() => {}} />)
+    renderDashboard(supervisor)
 
     expect(await screen.findByRole('heading', { name: 'Your team' })).toBeInTheDocument()
     await screen.findByText('Nia Newhire')

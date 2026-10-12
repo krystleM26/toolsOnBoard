@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from './api.js'
+import { Navigate, Route, Routes } from 'react-router'
 import Login from './Login.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
+import StaffLayout from './dashboard/StaffLayout.jsx'
 import { ROLE_LABELS } from './format.js'
+import PersonPage from './person/PersonPage.jsx'
 import './App.css'
 
 function App() {
@@ -30,7 +33,15 @@ function App() {
   }
 
   if (user.role !== 'employee') {
-    return <Dashboard user={user} onLogout={handleLogout} />
+    return (
+      <Routes>
+        <Route element={<StaffLayout user={user} onLogout={handleLogout} />}>
+          <Route index element={<Dashboard user={user} />} />
+          <Route path="staff/:id" element={<PersonPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    )
   }
 
   return (

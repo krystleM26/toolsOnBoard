@@ -11,13 +11,11 @@ const EMPTY_FORM = {
   alreadyWorking: false,
 }
 
-function AddStaffForm({ viewer, onAdded, onCancel }) {
+// Only admins see this form (the server checks too), so every role is offered.
+function AddStaffForm({ onAdded, onCancel }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
-
-  // Only admins can add admins (the server checks this too).
-  const roles = Object.keys(ROLE_LABELS).filter((role) => role !== 'admin' || viewer.role === 'admin')
 
   function update(field) {
     return (event) => {
@@ -62,7 +60,7 @@ function AddStaffForm({ viewer, onAdded, onCancel }) {
         <label className="field">
           Role
           <select value={form.role} onChange={update('role')}>
-            {roles.map((role) => (
+            {Object.keys(ROLE_LABELS).map((role) => (
               <option key={role} value={role}>
                 {ROLE_LABELS[role]}
               </option>

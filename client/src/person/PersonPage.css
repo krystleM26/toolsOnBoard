@@ -1,0 +1,249 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #4338ca;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.person-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.person-header .page-title {
+  margin-bottom: 0.25rem;
+}
+
+.person-subtitle {
+  color: #475569;
+}
+
+.status-badge {
+  font-weight: 600;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.status-onboarding {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.status-active {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.status-archived {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.status-actions .button {
+  margin-top: 0;
+}
+
+.confirm {
+  max-width: 420px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.confirm .form-actions .button {
+  margin-top: 0.75rem;
+}
+
+.button-danger {
+  background: #b91c1c;
+}
+
+.archived-banner {
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+/* Two columns on wide screens, one on narrow screens. */
+.person-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.card-section {
+  margin-bottom: 0;
+}
+
+.card-section h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.link-button {
+  font: inherit;
+  font-weight: 600;
+  color: #4338ca;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+}
+
+.details dt {
+  color: #64748b;
+}
+
+.details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.plain-list,
+.checklist,
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.plain-list li {
+  padding: 0.25rem 0;
+}
+
+.choice-list {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.choice-list .checkbox {
+  margin-top: 0.4rem;
+}
+
+.checklist li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.checklist li:last-child {
+  border-bottom: none;
+}
+
+.checklist .checkbox {
+  margin-top: 0;
+  align-items: flex-start;
+}
+
+.checklist input[type='checkbox'] {
+  margin-top: 0.3rem;
+}
+
+.task-done > * > span:first-of-type {
+  color: #475569;
+}
+
+.task-meta {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.table-plain {
+  border: none;
+  border-radius: 0;
+}
+
+.documents-table {
+  min-width: 0;
+}
+
+.documents-table th,
+.documents-table td {
+  padding-left: 0;
+}
+
+.note-form {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.note-form textarea {
+  font: inherit;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  resize: vertical;
+}
+
+.note-form .button {
+  justify-self: start;
+  margin-top: 0;
+}
+
+.timeline li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.timeline li:last-child {
+  border-bottom: none;
+}
+
+.note-body {
+  white-space: pre-wrap;
+}
+
+/* Hidden on screen but read aloud by screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
