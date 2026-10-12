@@ -7,7 +7,8 @@
     "server": "npm --prefix server run dev",
     "client": "npm --prefix client run dev -- --host 0.0.0.0",
     "test": "npm --prefix server test && npm --prefix client test",
-    "create-admin": "npm --prefix server run create-admin"
+    "create-admin": "npm --prefix server run create-admin",
+    "db:demo": "npm --prefix server run db:demo"
   },
   "devDependencies": {
     "concurrently": "^9.2.0"

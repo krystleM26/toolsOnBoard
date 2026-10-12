@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react'
 import { api } from './api.js'
 import Login from './Login.jsx'
+import Dashboard from './dashboard/Dashboard.jsx'
+import { ROLE_LABELS } from './format.js'
 import './App.css'
-
-const ROLE_LABELS = {
-  admin: 'Admin',
-  manager: 'Manager',
-  supervisor: 'Supervisor',
-  employee: 'Employee',
-}
 
 function App() {
   // undefined = still checking, null = logged out, object = logged in
@@ -34,6 +29,10 @@ function App() {
     return <Login onLogin={setUser} />
   }
 
+  if (user.role !== 'employee') {
+    return <Dashboard user={user} onLogout={handleLogout} />
+  }
+
   return (
     <main className="app-shell">
       <div className="card">
@@ -41,11 +40,7 @@ function App() {
           {user.organization_name} · {ROLE_LABELS[user.role]}
         </p>
         <h1>Welcome, {user.full_name}</h1>
-        <p className="subtext">
-          {user.role !== 'employee'
-            ? 'The dashboard is coming in the next step.'
-            : 'Your onboarding checklist is coming soon.'}
-        </p>
+        <p className="subtext">Your onboarding checklist is coming soon.</p>
         <button className="button button-secondary" onClick={handleLogout}>
           Log out
         </button>

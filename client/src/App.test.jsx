@@ -16,12 +16,22 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
   })
 
-  it('welcomes an already logged-in admin', async () => {
-    mockFetch({ 'GET /api/auth/me': { body: { user: admin } } })
+  it('shows staff dashboard to an already logged-in admin', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: { user: admin } },
+      'GET /api/staff/summary': {
+        body: {
+          warningDays: 30,
+          onboarding: { total: 0, behind: 0, missingDocs: 0 },
+          active: { total: 0, expired: 0, expiring: 0, missingDocs: 0 },
+        },
+      },
+      'GET /api/staff': { body: { staff: [], total: 0, page: 1, pageSize: 25 } },
+    })
     render(<App />)
 
-    expect(await screen.findByRole('heading', { name: 'Welcome, Alex Admin' })).toBeInTheDocument()
-    expect(screen.getByText('Sunrise Care · Admin')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Staff' })).toBeInTheDocument()
+    expect(screen.getByText('Alex Admin · Admin')).toBeInTheDocument()
   })
 
   it('welcomes an employee', async () => {

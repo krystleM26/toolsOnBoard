@@ -6,18 +6,23 @@ import { vi } from 'vitest'
 //   mockFetch({
 //     'GET /api/auth/me': { status: 401, body: { error: 'Not logged in' } },
 //     'POST /api/auth/login': { status: 200, body: { user } },
+//     // A key without a query string matches any query, e.g. /api/staff?page=2.
+//     // A function gets the URL and options and returns { status, body }.
+//     'GET /api/staff': (url) => ({ body: { staff: [] } }),
 //   })
 //
 // Returns the fake so tests can check what was requested.
 export function mockFetch(routes) {
   const fetch = vi.fn(async (url, options = {}) => {
-    const key = `${options.method || 'GET'} ${url}`
-    const route = routes[key]
+    const method = options.method || 'GET'
+    const path = url.split('?')[0]
+    const route = routes[`${method} ${url}`] ?? routes[`${method} ${path}`]
     if (!route) {
-      throw new Error(`mockFetch: no response set up for "${key}"`)
+      throw new Error(`mockFetch: no response set up for "${method} ${url}"`)
     }
-    return new Response(JSON.stringify(route.body ?? {}), {
-      status: route.status ?? 200,
+    const { status = 200, body = {} } = typeof route === 'function' ? route(url, options) : route
+    return new Response(JSON.stringify(body), {
+      status,
       headers: { 'Content-Type': 'application/json' },
     })
   })
