@@ -4,8 +4,9 @@ import { describe, expect, it } from 'vitest'
 import App from './App.jsx'
 import { mockFetch } from './test/mockFetch.js'
 
-const admin = { id: 1, email: 'admin@example.com', full_name: 'Alex Admin', role: 'admin' }
-const employee = { id: 2, email: 'sam@example.com', full_name: 'Sam Lee', role: 'employee' }
+const org = { organization_id: 1, organization_name: 'Sunrise Care' }
+const admin = { id: 1, email: 'admin@example.com', full_name: 'Alex Admin', role: 'admin', ...org }
+const employee = { id: 2, email: 'sam@example.com', full_name: 'Sam Lee', role: 'employee', ...org }
 
 describe('App', () => {
   it('shows the login page when nobody is logged in', async () => {
@@ -20,7 +21,7 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByRole('heading', { name: 'Welcome, Alex Admin' })).toBeInTheDocument()
-    expect(screen.getByText('Admin')).toBeInTheDocument()
+    expect(screen.getByText('Sunrise Care · Admin')).toBeInTheDocument()
   })
 
   it('welcomes an employee', async () => {
@@ -28,7 +29,7 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByRole('heading', { name: 'Welcome, Sam Lee' })).toBeInTheDocument()
-    expect(screen.getByText('Employee')).toBeInTheDocument()
+    expect(screen.getByText('Sunrise Care · Employee')).toBeInTheDocument()
   })
 
   it('goes back to the login page after logging out', async () => {

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --env-file=.env --watch server.js",
     "start": "node --env-file=.env server.js",
-    "db:setup": "node --env-file=.env db/setup.js",
+    "db:migrate": "node --env-file=.env db/migrate.js",
     "create-admin": "node --env-file=.env db/create-admin.js",
     "pretest": "node --env-file=.env.test test/create-test-db.js",
     "test": "node --env-file=.env.test --test --test-concurrency=1 \"test/**/*.test.js\"",

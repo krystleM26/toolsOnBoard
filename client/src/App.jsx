@@ -3,6 +3,13 @@ import { api } from './api.js'
 import Login from './Login.jsx'
 import './App.css'
 
+const ROLE_LABELS = {
+  admin: 'Admin',
+  manager: 'Manager',
+  supervisor: 'Supervisor',
+  employee: 'Employee',
+}
+
 function App() {
   // undefined = still checking, null = logged out, object = logged in
   const [user, setUser] = useState(undefined)
@@ -30,11 +37,13 @@ function App() {
   return (
     <main className="app-shell">
       <div className="card">
-        <p className="eyebrow">{user.role === 'admin' ? 'Admin' : 'Employee'}</p>
+        <p className="eyebrow">
+          {user.organization_name} · {ROLE_LABELS[user.role]}
+        </p>
         <h1>Welcome, {user.full_name}</h1>
         <p className="subtext">
-          {user.role === 'admin'
-            ? 'The admin dashboard is coming in the next step.'
+          {user.role !== 'employee'
+            ? 'The dashboard is coming in the next step.'
             : 'Your onboarding checklist is coming soon.'}
         </p>
         <button className="button button-secondary" onClick={handleLogout}>

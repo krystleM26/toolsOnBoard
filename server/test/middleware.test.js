@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireRole } from '../middleware/auth.js';
 
 // A stand-in for Express's res object that records what was sent.
 function fakeResponse() {
@@ -18,19 +18,25 @@ function fakeResponse() {
   };
 }
 
-describe('requireAdmin', () => {
-  it('lets admins through', (t) => {
-    const next = t.mock.fn();
-    requireAdmin({ user: { id: 1, role: 'admin' } }, fakeResponse(), next);
-    assert.equal(next.mock.callCount(), 1);
-  });
+describe('requireRole', () => {
+  const adminsAndManagers = requireRole('admin', 'manager');
 
-  it('blocks employees with 403', (t) => {
-    const next = t.mock.fn();
-    const res = fakeResponse();
-    requireAdmin({ user: { id: 2, role: 'employee' } }, res, next);
+  for (const role of ['admin', 'manager']) {
+    it(`lets ${role}s through`, (t) => {
+      const next = t.mock.fn();
+      adminsAndManagers({ user: { id: 1, role } }, fakeResponse(), next);
+      assert.equal(next.mock.callCount(), 1);
+    });
+  }
 
-    assert.equal(next.mock.callCount(), 0);
-    assert.equal(res.statusCode, 403);
-  });
+  for (const role of ['supervisor', 'employee']) {
+    it(`blocks ${role}s with 403`, (t) => {
+      const next = t.mock.fn();
+      const res = fakeResponse();
+      adminsAndManagers({ user: { id: 2, role } }, res, next);
+
+      assert.equal(next.mock.callCount(), 0);
+      assert.equal(res.statusCode, 403);
+    });
+  }
 });
